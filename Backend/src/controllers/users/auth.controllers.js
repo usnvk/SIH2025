@@ -33,29 +33,39 @@ async function registerUser(req, res) {
         });
 
         // Use environment variable for JWT secret. Fallback used for dev.
-        const jwtSecret = process.env.JWT_SECRET || "25660eafdb014d31c740e0c0656d231f"; 
+        const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+
+        if (!jwtSecret) {
+            console.error('JWT_SECRET is not defined in environment variables');
+            return res.status(500).json({ message: 'Server configuration error' });
+        }
 
         // 8. Create an authentication token.
         const token = jwt.sign({
             id: user._id,
         }, jwtSecret, { expiresIn: '1h' }); // Token expires after 1 hour
 
-        // 9. Send the token as a secure cookie.
+        // 9. Send the token as a secure cookie and user data in response
         res.cookie("token", token, { 
             httpOnly: true, 
             secure: process.env.NODE_ENV === 'production', 
             sameSite: 'strict',
             maxAge: 3600000 // 1 hour
         });
-
-        // 10. Send a successful response.
+        
+        // Send success response with user data (excluding password)
+        const userData = user.toObject();
+        delete userData.password;
+        
         res.status(201).json({
-            message: "User registered successfully",
+            success: true,
+            message: 'User registered successfully',
             user: {
                 id: user._id,
                 email: user.email,
                 Name: user.Name,
-            }
+            },
+            token: token // Also send token in response for client-side storage if needed
         });
     } catch (error) {
         console.error("Error in registerUser:", error);
@@ -85,7 +95,7 @@ async function loginuser(req, res) {
         }
 
         // Use environment variable for JWT secret.
-        const jwtSecret = process.env.JWT_SECRET || "25660eafdb014d31c740e0c0656d231f"; 
+        const jwtSecret = process.env.JWT_SECRET;
         
         // Generate new token upon successful login.
         const token = jwt.sign({

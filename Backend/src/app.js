@@ -1,31 +1,20 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const app = express();
+const express=require('express');
+const cookieParser=require('cookie-parser');
+const authRoutes= require('./routes/auth.routes');
 
-// Import Routes
-const mainRoutes = require('./routes/Main.routes');
-const authRoutes = require('./routes/auth.routes');
+// const foodroutes= require('./routes/food.routes');
+const app=express();
+const cors= require('cors');
 
-// Middlewares
-app.use(cors());
 app.use(express.json());
-
-// Simple request logger to see all incoming requests
-app.use((req, res, next) => {
-    console.log(`Request Received: ${req.method} ${req.originalUrl}`);
-    next();
-});
-
-// Base Route
-app.get('/', (req, res) => {
+app.use(cookieParser());
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true
+}))
+app.get('/',(req,res)=>{
     res.send("hello world");
-});
-
-// API Routes
-app.use('/api/generate', mainRoutes);
-app.use('/api/auth', authRoutes);
-
-// app.use('/api/food',foodroutes); // This route is commented out as it was in the original file
-
-module.exports = app;
+})
+app.use('/api/auth',authRoutes);
+//app.use('/api/food',foodroutes);
+module.exports=app;
