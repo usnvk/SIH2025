@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const dietController = require('../controllers/dietController');
+const dietController = require('../controllers/dietchart/dietcontroller');
 
 // Define the API endpoint for generating a diet chart.
 // When a POST request is made to '/api/user/dietchart',
